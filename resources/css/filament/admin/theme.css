@@ -1,0 +1,17 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@config 'tailwind.config.js';
+
+
+@layer base {
+    .fi-simple-layout {
+        background: url("/public/background_login.png") no-repeat fixed center !important;
+        background-size: cover !important;
+    }
+
+    .fi-simple-main {
+        background: #ffffff0f !important;
+        backdrop-filter: blur(60px) !important;
+        border-radius: 38px !important;
+    }
+}
