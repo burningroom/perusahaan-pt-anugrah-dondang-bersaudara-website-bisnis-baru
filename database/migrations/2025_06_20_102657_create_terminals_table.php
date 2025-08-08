@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('terminals', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('pkk_id')->nullable();
+            $table->string('dock_code')->nullable();
+            $table->string('dock_name')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

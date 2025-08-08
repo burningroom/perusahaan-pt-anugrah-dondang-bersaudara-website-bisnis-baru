@@ -20,6 +20,11 @@ class Pkk extends Model
         return $this->belongsTo(Agent::class, 'agent_id', 'id');
     }
 
+    public function requestable()
+    {
+        return $this->morphTo();
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');

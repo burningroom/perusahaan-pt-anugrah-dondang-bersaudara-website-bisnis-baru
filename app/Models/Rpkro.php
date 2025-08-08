@@ -20,7 +20,7 @@ class Rpkro extends Model
         'plan_time' => 'datetime',
     ];
 
-    public function pkk()
+    public function pkk():BelongsTo
     {
         return $this->belongsTo(Pkk::class, 'pkk_id', 'id');
     }

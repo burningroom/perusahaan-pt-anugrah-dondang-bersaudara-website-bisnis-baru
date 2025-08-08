@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RequestPanduController;
+use App\Http\Controllers\InaportnetController;
 use Illuminate\Support\Facades\Route;
 
+Route::match(['GET', 'POST'], 'services/inaportnet', [InaportnetController::class, 'index']);
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -16,12 +18,12 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
 //    });
 
     Route::prefix('agent')->group(function () {
-        Route::controller(RequestPanduController::class)->prefix('arrival-request')->group(function() {
+        Route::controller(RequestPanduController::class)->prefix('arrival-request')->group(function () {
             Route::get('vessel-list', 'vesselList');
             Route::get('jenis-pengolongan-list', 'jenisPengolonganList');
             Route::post('store', 'store');
-            Route::get('list', 'list');
-            Route::get('detail/{id}', 'detail');
+            Route::get('list', 'indexAgent');
+            Route::get('detail/{id}', 'showAgent');
         });
 
 //        Route::controller(StevedoringRequestController::class)->prefix('stevedoring-request')->group(function() {
@@ -57,15 +59,15 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
 //        });
     });
 //
-//    Route::prefix('pandu')->middleware('role:pandu')->group(function () {
-//        Route::controller(ArrivalRequestController::class)->prefix('arrival-request')->group(function() {
-//            Route::get('list', 'list');
-//            Route::get('history', 'history');
-//            Route::get('detail/{id}', 'detail');
-//            Route::post('submit-spk-pandu', 'submitSPKPandu');
-//            Route::get('export-ship-service/{id}', 'exportShipService');
-//        });
-//    });
+    Route::prefix('pandu')->group(function () {
+        Route::controller(RequestPanduController::class)->prefix('arrival-request')->group(function () {
+            Route::get('list', 'indexPandu');
+            Route::get('history', 'history');
+            Route::get('detail/{id}', 'showPandu');
+            Route::post('submit-spk-pandu', 'submitSPKPandu');
+            Route::get('export-ship-service/{id}', 'exportShipService');
+        });
+    });
 
 });
 

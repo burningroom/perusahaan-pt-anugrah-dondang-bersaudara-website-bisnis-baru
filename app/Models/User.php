@@ -20,6 +20,8 @@ class User extends Authenticatable implements HasAvatar, FilamentUser
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles, HasUuids, SoftDeletes;
 
+    protected array $guard_name = ['web', 'api', 'sactum'];
+
     /**
      * The attributes that are mass assignable.
      *

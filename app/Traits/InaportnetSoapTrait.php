@@ -24,9 +24,12 @@ trait InaportnetSoapTrait
                 ])
                 ->call($action, $params);
 
+            $responseKey = $action . 'Result';
+            $response = json_decode(json_encode($response->response), true);
+
             return [
                 'success' => true,
-                'data' => $response->body(),
+                'data' => array_key_exists($responseKey, $response) ? $response[$responseKey] : $response,
             ];
         } catch (\Throwable $e) {
             Log::error("SOAP Error [$action]: " . $e->getMessage());

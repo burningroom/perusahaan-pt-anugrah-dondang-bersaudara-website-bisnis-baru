@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Validation\Rule;
 
@@ -19,7 +22,12 @@ class RequestArrival extends Model
         'waktu_pengolongan' => 'datetime'
     ];
 
-    public static function validator()
+    protected $appends = [
+        'vessel_tb',
+        'vessel_bg',
+    ];
+
+    public static function validator(): array
     {
         return [
             'nomor_pkk' => ['required', 'string'],
@@ -40,5 +48,40 @@ class RequestArrival extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function pkk(): MorphOne
+    {
+        return $this->morphOne(Pkk::class, 'requestable');
+    }
+
+    public function vessel_requests(): HasMany
+    {
+        return $this->hasMany(VesselRequest::class);
+    }
+
+    public function getVesselTbAttribute(): ?VesselMaster
+    {
+        $tbRequest = $this->vessel_requests
+            ->first(function ($vesselRequest) {
+                return $vesselRequest->vessel_master?->type === 'TB';
+            });
+
+        return $tbRequest?->vessel_master;
+    }
+
+    public function getVesselBgAttribute(): ?VesselMaster
+    {
+        $bgRequest = $this->vessel_requests
+            ->first(function ($vesselRequest) {
+                return $vesselRequest->vessel_master?->type === 'BG';
+            });
+
+        return $bgRequest?->vessel_master;
+    }
+
+    public function company_request(): HasOne
+    {
+        return $this->hasOne(CompanyRequest::class, 'request_arrival_id', 'id');
     }
 }

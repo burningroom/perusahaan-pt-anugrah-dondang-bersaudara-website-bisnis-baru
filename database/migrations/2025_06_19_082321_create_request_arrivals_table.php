@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('request_arrivals', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->nullable();
-            $table->string('nama_kapal')->nullable();//
             $table->string('nomor_pkk')->nullable();//
             $table->string('vessel_tb')->nullable();//
             $table->string('vessel_bg')->nullable();//

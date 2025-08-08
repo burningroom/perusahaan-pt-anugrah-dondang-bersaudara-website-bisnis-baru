@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('pkks', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('agent_id')->nullable();
             $table->foreignUuid('user_id')->nullable();
             $table->nullableUuidMorphs('requestable');
             $table->foreignUuid('company_id')->nullable();
@@ -35,6 +34,7 @@ return new class extends Migration
             $table->string('pandu_name')->nullable()->comment('namaPandu (Nama Pandu Setempat)');
             $table->string('mmsi')->nullable()->comment('mmsi (Nomor MMSI)');
             $table->string('status_window')->nullable()->comment('statusWindow (Status Window)');
+            $table->string('status_but')->default('N');
             $table->timestamps();
             $table->softDeletes();
         });

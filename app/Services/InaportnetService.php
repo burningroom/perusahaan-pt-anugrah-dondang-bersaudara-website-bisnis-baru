@@ -15,11 +15,101 @@ class InaportnetService
 
     public function getEntryPKK(string $nomorPKK): array
     {
-        return $this->soapRequest('getEntryPKK', [
-            'user' => config('inaportnet.user'),
-            'password' => config('inaportnet.password'),
-            'nomorPKK' => $nomorPKK
-        ]);
+        if (config('app.env') == 'production')
+            return $this->soapRequest('getEntryPKK', [
+                'user' => config('inaportnet.user'),
+                'password' => config('inaportnet.password'),
+                'nomorPKK' => $nomorPKK
+            ]);
+
+        $xml = '<ns2:getEntryPKKResponse xmlns:ns2="http://src/">
+                    <return>
+                        <portCode>IDSUB</portCode>
+                        <statusCode>01</statusCode>
+                        <statusMessage>Success</statusMessage>
+                        <nomorPKK>PKK.DN.IDMAK.1604.000002</nomorPKK>
+                        <nomorPPK>PPK.SUB.1602.00001</nomorPPK>
+                        <perusahaanNama>PT. PELAYARAN ALKAN ABADI</perusahaanNama>
+                        <tandaPendaftaranKapal>2002_Ka_No._2996/L</tandaPendaftaranKapal>
+                        <kapalNama>Tanimbar Sehati ex Tanimbar Sejati</kapalNama>
+                        <nahkoda>YOHANES YAMLEAN</nahkoda>
+                        <drt>16000</drt>
+                        <grt>1007</grt>
+                        <loa>57.18</loa>
+                        <jenisTrayek>02</jenisTrayek>
+                        <bendera>ID</bendera>
+                        <callSign>YGWI</callSign>
+                        <imoNumber></imoNumber>
+                        <tanggalEta>2016-04-15 13:05:00</tanggalEta>
+                        <tanggalEtd>2016-04-18 09:10:00</tanggalEtd>
+                        <kodeAsalPelabuhan>IDENE</kodeAsalPelabuhan>
+                        <asalPelabuhan>ENDE, FLORES</asalPelabuhan>
+                        <kodeTujuanPelabuhan>IDLWE</kodeTujuanPelabuhan>
+                        <tujuanPelabuhan>LEWOLEBA </tujuanPelabuhan>
+                        <kodeDermaga>IDSUB.T01.B01</kodeDermaga>
+                        <dermagaNama>HASANUDDIN - MULTIPURPOSE I</dermagaNama>
+                        <penumpangNaikTurunBongkar></penumpangNaikTurunBongkar>
+                        <penumpangNaikTurunMuat></penumpangNaikTurunMuat>
+                        <jenisBarang>Bag Cargo</jenisBarang>
+                        <containerBongkarIsi40 xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+                        <containerBongkarIsi20 xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+                        <containerBongkarIsi40Empty xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+                        <containerBongkarIsi20Empty xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+                        <containerMuatIsi40 xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+                        <containerMuatIsi20 xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+                        <containerMuatIsi40Empty xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+                        <containerMuatIsi20Empty xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+                        <cargoBarangCampurBongkar></cargoBarangCampurBongkar>
+                        <cargoBarangCampurMuat></cargoBarangCampurMuat>
+                        <cargoBarangKarungBongkar></cargoBarangKarungBongkar>
+                        <cargoBarangKarungMuat>1600Ton</cargoBarangKarungMuat>
+                        <cargoBarangCurahBongkar></cargoBarangCurahBongkar>
+                        <cargoBarangCurahMuat></cargoBarangCurahMuat>
+                        <cargoBarangCairBongkar></cargoBarangCairBongkar>
+                        <cargoBarangCairMuat></cargoBarangCairMuat>
+                        <cargoBarangBerbahayaBongkar></cargoBarangBerbahayaBongkar>
+                        <cargoBarangBerbahayaMuat></cargoBarangBerbahayaMuat>
+                        <jenisBarangLain></jenisBarangLain>
+                        <jenisBarangLainBongkar></jenisBarangLainBongkar>
+                        <jenisBarangLainMuat></jenisBarangLainMuat>
+                        <jumlahBongkar>0</jumlahBongkar>
+                        <jumlahMuat>1600</jumlahMuat>
+                        <hewanNaikTurunBongkar></hewanNaikTurunBongkar>
+                        <hewanNaikTurunMuat></hewanNaikTurunMuat>
+                        <portCode>IDMAK</portCode>
+                        <sts>2</sts>
+                        <npwp>01.673.218.2-801.002</npwp>
+                        <kodeMuatPelabuhan>IDGRE</kodeMuatPelabuhan>
+                        <muatPelabuhan>GRESIK</muatPelabuhan>
+                        <kodeTujuanAkhirPelabuhan>IDMAK</kodeTujuanAkhirPelabuhan>
+                        <tujuanAkhirPelabuhan>MAKASSAR</tujuanAkhirPelabuhan>
+                        <jenisKapal>1.7.1</jenisKapal>
+                        <tahunPembuatan>2002</tahunPembuatan>
+                        <lebarKapal>12</lebarKapal>
+                        <drMax>4.8</drMax>
+                        <drDepan>2.1</drDepan>
+                        <drBelakang>3.2</drBelakang>
+                        <drTengah xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+                        <noinmarsat></noinmarsat>
+                        <nomorTrayek>AL.302/59/10/157/16</nomorTrayek>
+                        <statusBM>Y</statusBM>
+                        <npwpPrincipal></npwpPrincipal>
+                        <namaPrincipal></namaPrincipal>
+                        <statusBut>N</statusBut>
+                        <noPmkuPandu>PMKU.IDJKT.0621.000025</noPmkuPandu>
+                        <noNpwpPandu>ZAMRUD</noNpwpPandu>
+                        <namaPandu>PT Jasa Aramada Indonesia</namaPandu>
+                        <mmsi>123</mmsi>
+                        <statusWindow>N</statusWindow>
+                    </return>
+                </ns2:getEntryPKKResponse>';
+        $xmlObj = simplexml_load_string($xml);
+        $response = json_decode(json_encode($xmlObj), true);
+
+        return [
+            'success' => true,
+            'data' => $response['return'],
+        ];
     }
 
     public function entryRKBM(array $data): array
@@ -29,7 +119,30 @@ class InaportnetService
 
     public function entryRpkro(array $data): array
     {
-        return $this->soapRequest('entryRpkro', ['req' => $data]);
+        if (config('app.env') == 'production') {
+            $payload = [
+                'user' => config('inaportnet.user'),
+                'password' => config('inaportnet.password'),
+            ];
+            $payload = array_merge($payload, $data);
+            return $this->soapRequest('entryRpkro', $payload);
+        }
+        $xml = '<ns2:entryRpkroResponse xmlns:ns2="http://src/">
+                    <entryRpkroResult>
+                        <return>
+                            <statusCode>01</statusCode>
+                            <statusMessage>Success</statusMessage>
+                            <NomorRpkRo>RPKRO.SUB.1602.00001</NomorRpkRo>
+                        </return>
+                    </entryRpkroResult>
+                </ns2:entryRpkroResponse>';
+        $xmlObj = simplexml_load_string($xml);
+        $response = json_decode(json_encode($xmlObj), true);
+
+        return [
+            'success' => true,
+            'data' => $response['entryRpkroResult']['return'],
+        ];
     }
 
     public function entryPPK(array $data): array

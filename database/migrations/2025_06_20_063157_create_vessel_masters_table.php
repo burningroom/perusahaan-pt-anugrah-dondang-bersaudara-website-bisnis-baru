@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('registration_sign')->nullable()->comment('Tanda Pendaftaran Kapal');
             $table->string('name')->nullable()->comment('Nama Kapal');
             $table->string('code')->nullable()->comment('Kode Kapal');
-            $table->string('type')->nullable()->comment('Tipe kapal (TB/BG)');
+            $table->enum('type', ['TB', 'BG', 'LCT'])->comment('Tipe kapal (TB/BG/LCT)');
             $table->integer('drt')->nullable();
             $table->integer('grt')->nullable();
             $table->double('loa')->nullable();

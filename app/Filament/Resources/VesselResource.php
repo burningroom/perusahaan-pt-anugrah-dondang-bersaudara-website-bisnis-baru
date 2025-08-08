@@ -192,7 +192,7 @@ class VesselResource extends Resource
                     ->preload()
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                 Tables\Actions\EditAction::make(),
                 ViewAction::make()
                     ->modalWidth(12),
             ])

@@ -12,6 +12,7 @@ class BaseController extends Controller
     protected string $notfound_msg = "Terkait Tidak Ditemukan Di Database...";
     protected string $saved_msg    = "Terkait Berhasil Disimpan!";
     protected string $deleted_msg  = "Terkait Berhasil Dihapus!";
+    protected string $unauthorized_msg = "Terkait Tidak Diizinkan!";
 
     /**
      * Return a success response with optional title.

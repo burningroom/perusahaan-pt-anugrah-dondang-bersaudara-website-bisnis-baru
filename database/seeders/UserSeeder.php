@@ -22,6 +22,7 @@ class UserSeeder extends Seeder
         $user = User::firstOrCreate(
             ['email' => 'superadmin@gmail.com'],
             [
+                'id' => '9f40a349-0fcc-497c-83a3-94badfdccb80',
                 'name' => 'Super Admin',
                 'username' => 'superadmin',
                 'password' => Hash::make('secret2025'),
