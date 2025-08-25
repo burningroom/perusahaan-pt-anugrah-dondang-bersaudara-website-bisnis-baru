@@ -225,7 +225,6 @@ class AdminPanelProvider extends PanelProvider
                     ->label('Profile')
                     ->url(fn(): string => EditProfilePage::getUrl())
                     ->icon('heroicon-o-user-circle')
-                    //If you are using tenancy need to check with the visible method where ->company() is the relation between the user and tenancy model as you called
                     ->visible()
             ]);
 

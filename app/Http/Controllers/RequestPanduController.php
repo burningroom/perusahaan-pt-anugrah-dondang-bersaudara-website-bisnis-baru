@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Filament\Resources\RequestPanduResource;
-use App\Models\Company;
 use App\Models\RequestArrival;
 use App\Models\User;
-use App\Services\InaportnetService;
 use Carbon\Carbon;
 use Filament\Notifications\Notification;
 use Illuminate\Http\JsonResponse;
@@ -19,13 +17,6 @@ use Illuminate\Support\Facades\Validator;
 
 class RequestPanduController extends BaseController
 {
-    protected InaportnetService $inaportnetService;
-
-    public function __construct(InaportnetService $inaportnetService)
-    {
-        $this->inaportnetService = $inaportnetService;
-    }
-
     private function getRequestArrivalStatus($status): string
     {
         switch ($status) {
@@ -166,16 +157,6 @@ class RequestPanduController extends BaseController
             if (!$vessel_tongkang)
                 return $this->sendError("Data kapal tongkang $this->notfound_msg");
 
-            $responseGetEntryPKK = $this->inaportnetService->getEntryPKK($nomor_pkk);
-            if (!$responseGetEntryPKK['success'])
-                throw new \Exception($responseGetEntryPKK['message']);
-            if ($responseGetEntryPKK['data']['statusCode'] != '01')
-                throw new \Exception($responseGetEntryPKK['data']['statusMessage']);
-
-            $getEntryPKK = $responseGetEntryPKK['data'];
-
-            $nama_kapal = $getEntryPKK['kapalNama'] ?? null;
-
             $request_arrival = RequestArrival::updateOrCreate(
                 [
                     'nomor_pkk' => $nomor_pkk,
@@ -209,162 +190,6 @@ class RequestPanduController extends BaseController
                     'vessel_master_id' => $vessel_tongkang->id,
                 ]);
             }
-
-            $pkk = $request_arrival->pkk()->firstOrCreate(
-                [
-                    'pkk_number' => $nomor_pkk,
-                ],
-                [
-                    'user_id' => $user_id,
-                    'route_type' => $getEntryPKK['jenisTrayek'] ?? null,
-                    'route_number' => $getEntryPKK['nomorTrayek'] ?? null,
-                    'bm_status' => $getEntryPKK['statusBM'] ?? null,
-                    'total_unload' => (int)($getEntryPKK['jumlahBongkar'] ?? 0),
-                    'total_load' => (int)($getEntryPKK['jumlahMuat'] ?? 0),
-                    'port_code' => $getEntryPKK['portCode'][0] ?? null,
-                    'item_type' => $getEntryPKK['jenisBarang'] ?? null,
-                    'status' => 'sukses',
-                    'description' => 'Inaportnet : Sukses',
-                    'tanggalEta' => empty($getEntryPKK['tanggalEta']) ? null : Carbon::parse($getEntryPKK['tanggalEta'])->toDateTimeString(),
-                    'tanggalEtd' => empty($getEntryPKK['tanggalEtd']) ? null : Carbon::parse($getEntryPKK['tanggalEtd'])->toDateTimeString(),
-                    'pmku_pandu_number' => $getEntryPKK['noPmkuPandu'] ?? null,
-                    'npwp_pandu_number' => $getEntryPKK['noNpwpPandu'] ?? null,
-                    'pandu_name' => $getEntryPKK['namaPandu'] ?? null,
-                    'mmsi' => $getEntryPKK['mmsi'] ?? null,
-                    'status_window' => $getEntryPKK['statusWindow'] ?? null,
-                    'status_but' => $getEntryPKK['statusBut'] ?? 'N'
-                ]);
-
-            if (!$pkk)
-                throw new \Exception("Gagal menyimpan data PKK!");
-
-            $spk_pandu = $pkk->spkPandu()->updateOrCreate(
-                [
-                    'pkk_id' => $pkk->id,
-                    'agent_id' => $user_id,
-                ],
-                [
-                    'nomor_pkk' => $nomor_pkk,
-                    'status' => 'permintaan',
-                ]
-            );
-
-            if (!$spk_pandu)
-                throw new \Exception("Gagal menyimpan data SPK Pandu!");
-
-            $port = $pkk->port()->updateOrCreate(
-                [
-                    'pkk_id' => $pkk->id,
-                ],
-                [
-                    'port_code' => $getEntryPKK['portCode'][1] ?? null,
-                    'port_name' => $getEntryPKK['muatPelabuhan'] ?? null,
-                    'port_origin_code' => $getEntryPKK['kodeAsalPelabuhan'] ?? null,
-                    'origin_port' => $getEntryPKK['asalPelabuhan'] ?? null,
-                    'load_port_code' => $getEntryPKK['kodeMuatPelabuhan'] ?? null,
-                    'load_port_name' => $getEntryPKK['muatPelabuhan'] ?? null,
-                    'destination_port_code' => $getEntryPKK['kodeTujuanPelabuhan'] ?? null,
-                    'destination_port_name' => $getEntryPKK['tujuanPelabuhan'] ?? null,
-                    'final_destination_port_code' => $getEntryPKK['kodeTujuanAkhirPelabuhan'] ?? null,
-                    'final_destination_port_name' => $getEntryPKK['tujuanAkhirPelabuhan'] ?? null,
-                ]
-            );
-
-            if (!$port) throw new \Exception("Gagal menyimpan data Port!");
-
-            $terminal = $pkk->terminal()->updateOrCreate(
-                [
-                    'pkk_id' => $pkk->id,
-                ],
-                [
-                    'dock_code' => $getEntryPKK['kodeDermaga'] ?? null,
-                    'dock_name' => $getEntryPKK['dermagaNama'] ?? null,
-                ]
-            );
-
-            if (!$terminal) throw new \Exception("Gagal menyimpan data Terminal!");
-
-            $company_id = null;
-            $nama_perusahaan = $getEntryPKK['perusahaanNama'];
-            $npwp_perusahaan = $getEntryPKK['npwp'];
-            if ($nama_perusahaan && $npwp_perusahaan) {
-                $company_id = Company::where('name', 'like', "%$nama_perusahaan%")
-                    ->where('npwp', 'like', "%$npwp_perusahaan%")
-                    ->first()?->id;
-            }
-
-            $principal = $pkk->principal()->updateOrCreate(
-                [
-                    'pkk_id' => $pkk->id,
-                ],
-                [
-                    'company_id' => $company_id,
-                    'company_name' => $nama_perusahaan ?? null,
-                    'npwp' => $npwp_perusahaan ?? null,
-                    'principal_npwp' => empty($getEntryPKK['npwpPrincipal']) ? null : $getEntryPKK['npwpPrincipal'],
-                    'principal_name' => empty($getEntryPKK['namaPrincipal']) ? null : $getEntryPKK['namaPrincipal'],
-                    'principal_country' => $getEntryPKK['negaraPrincipal'] ?? null,
-                    'but_status' => $getEntryPKK['statusBut'] ?? null,
-                ]
-            );
-
-            if (!$principal) throw new \Exception("Gagal menyimpan data Principal!");
-
-            $ship = $pkk->ship()->updateOrCreate(
-                [
-                    'pkk_id' => $pkk->id,
-                ],
-                [
-                    'registration_number' => $getEntryPKK['tandaPendaftaranKapal'] ?? null,
-                    'name' => $nama_kapal ?? null,
-                    'captain_name' => $getEntryPKK['nahkoda'] ?? null,
-                    'drt' => empty($getEntryPKK['drt']) ? null : (int)$getEntryPKK['drt'],
-                    'grt' => empty($getEntryPKK['grt']) ? null : (int)$getEntryPKK['grt'],
-                    'loa' => empty($getEntryPKK['loa']) ? null : (float)$getEntryPKK['loa'],
-                    'ship_type' => $getEntryPKK['jenisKapal'] ?? null,
-                    'year_build' => empty($getEntryPKK['tahunPembuatan']) ? null : (int)$getEntryPKK['tahunPembuatan'],
-                    'width' => empty($getEntryPKK['lebarKapal']) ? null : (float)$getEntryPKK['lebarKapal'],
-                    'max_draft' => empty($getEntryPKK['drMax']) ? null : (float)$getEntryPKK['drMax'],
-                    'front_draft' => empty($getEntryPKK['drDepan']) ? null : (float)$getEntryPKK['drDepan'],
-                    'rear_draft' => empty($getEntryPKK['drBelakang']) ? null : (float)$getEntryPKK['drBelakang'],
-                    'midship_draft' => empty($getEntryPKK['drTengah']) ? null : (float)$getEntryPKK['drTengah'],
-                    'call_sign' => $getEntryPKK['callSign'] ?? null,
-                    'flag' => $getEntryPKK['bendera'] ?? null,
-                    'imo_number' => empty($getEntryPKK['imoNumber']) ? null : $getEntryPKK['imoNumber'],
-                ]
-            );
-
-            if (!$ship) throw new \Exception("Gagal menyimpan data Kapal!");
-
-            $cargo = $pkk->cargo()->updateOrCreate(
-                [
-                    'pkk_id' => $pkk->id,
-                ],
-                [
-                    'mixed_cargo_unload' => empty($getEntryPKK['cargoBarangCampurBongkar']) ? null : $getEntryPKK['cargoBarangCampurBongkar'],
-                    'mixed_cargo_load' => empty($getEntryPKK['cargoBarangCampurMuat']) ? null : $getEntryPKK['cargoBarangCampurMuat'],
-                    'dangerous_good_cargo_unload' => empty($getEntryPKK['cargoBarangBerbahayaBongkar']) ? null : $getEntryPKK['cargoBarangBerbahayaBongkar'],
-                    'dangerous_good_cargo_load' => empty($getEntryPKK['cargoBarangBerbahayaMuat']) ? null : $getEntryPKK['cargoBarangBerbahayaMuat'],
-                    'unload_amount' => $getEntryPKK['jumlahBongkar'] ?? null,
-                ]
-            );
-
-            if (!$cargo) throw new \Exception("Gagal menyimpan data kargo!");
-
-            $container = $pkk->container()->updateOrCreate(
-                [
-                    'pkk_id' => $pkk->id,
-                ],
-                [
-                    'load_20_filled' => empty($getEntryPKK['containerMuatIsi20']) ? null : $getEntryPKK['containerMuatIsi20'],
-                    'load_40_filled' => empty($getEntryPKK['containerMuatIsi40']) ? null : $getEntryPKK['containerMuatIsi40'],
-                    'unload_20_filled' => empty($getEntryPKK['containerBongkarIsi20']) ? null : $getEntryPKK['containerBongkarIsi20'],
-                    'unload_40_filled' => empty($getEntryPKK['containerBongkarIsi40']) ? null : $getEntryPKK['containerBongkarIsi40'],
-
-                ]
-            );
-
-            if (!$container) throw new \Exception("Gagal menyimpan data Kontainer!");
 
             $actions = [
                 'view',
