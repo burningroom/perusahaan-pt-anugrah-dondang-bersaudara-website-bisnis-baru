@@ -11,10 +11,8 @@ class InaportnetController extends Controller
 {
     public function handle(Request $request, SoapService $soap, InaportnetService $inaportnetService)
     {
-        // Allow a simple GET probe / ?wsdl passthrough if you want
-        if ($request->isMethod('get') && !$request->has('wsdl')) {
-            return response('Inaportnet SOAP endpoint is up', 200)
-                ->header('Content-Type', 'text/plain; charset=utf-8');
+        if ($request->isMethod('get') || $request->query->has('wsdl')) {
+            return $this->serveWsdl($request);
         }
 
         $raw = $request->getContent();
@@ -129,5 +127,44 @@ class InaportnetController extends Controller
         $xml = $soap->makeResponse($action, array_merge($extras, $base));
 
         return response($xml, 200)->header('Content-Type', 'text/xml; charset=utf-8');
+    }
+
+    private function serveWsdl(\Illuminate\Http\Request $request)
+    {
+        // Point to your WSDL file
+        $path = resource_path('wsdl/inaportnet.wsdl'); // or inaportnet-compat.wsdl
+        if (!is_file($path)) {
+            abort(404, 'WSDL not found');
+        }
+
+        // Read and optionally patch the soap:address to this route
+        $wsdl = file_get_contents($path);
+        $endpointUrl = route('inaportnets'); // your POST/GET endpoint
+        $wsdl = $this->patchSoapAddress($wsdl, $endpointUrl);
+
+        // Serve INLINE (not as attachment) so the browser renders it
+        return response($wsdl, 200, [
+            'Content-Type'        => 'text/xml; charset=UTF-8',        // <- renders in browser
+            'Content-Disposition' => 'inline; filename="inaportnet.wsdl"', // <- NOT attachment
+            'X-Content-Type-Options' => 'nosniff', // optional safety
+        ]);
+    }
+
+    private function patchSoapAddress(string $wsdlXml, string $endpoint): string
+    {
+        $dom = new \DOMDocument();
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = false;
+        if (@$dom->loadXML($wsdlXml) === false) return $wsdlXml;
+
+        $xp = new \DOMXPath($dom);
+        $xp->registerNamespace('wsdl', 'http://schemas.xmlsoap.org/wsdl/');
+        $xp->registerNamespace('soap', 'http://schemas.xmlsoap.org/wsdl/soap/');
+
+        foreach ($xp->query('//wsdl:service/wsdl:port/soap:address') as $addr) {
+            /** @var \DOMElement $addr */
+            $addr->setAttribute('location', $endpoint);
+        }
+        return $dom->saveXML();
     }
 }
