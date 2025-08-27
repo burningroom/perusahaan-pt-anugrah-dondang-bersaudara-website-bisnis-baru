@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SoapLog;
 use App\Services\SoapService;
 use App\Services\InaportnetService;
 use Illuminate\Http\Request;
@@ -166,5 +167,12 @@ class InaportnetController extends Controller
             $addr->setAttribute('location', $endpoint);
         }
         return $dom->saveXML();
+    }
+
+    public function log(Request $request)
+    {
+        $per_page = $request->query('per_page', 10);
+        $models = SoapLog::orderBy('created_at', 'desc')->paginate($per_page);
+        return response()->json($models);
     }
 }

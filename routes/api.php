@@ -9,6 +9,8 @@ Route::match(['GET', 'POST'], 'services/inaportnet', [InaportnetController::clas
     ->middleware('soap.logger')
     ->name('inaportnets');
 
+Route::get('/log/inaportnet', [InaportnetController::class, 'log']);
+
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
