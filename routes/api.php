@@ -6,7 +6,8 @@ use App\Http\Controllers\InaportnetController;
 use Illuminate\Support\Facades\Route;
 
 Route::match(['GET', 'POST'], 'services/inaportnet', [InaportnetController::class, 'handle'])
-    ->middleware('soap.logger');
+    ->middleware('soap.logger')
+    ->name('inaportnets');
 
 Route::post('/login', [AuthController::class, 'login']);
 
