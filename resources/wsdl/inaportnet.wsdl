@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:tns="http://src/"
+    targetNamespace="http://src/"
+    name="InaportnetCompat">
+
+    <!-- ===== TYPES ===== -->
+    <wsdl:types>
+        <xs:schema targetNamespace="http://src/" elementFormDefault="qualified" attributeFormDefault="unqualified">
+            <!-- A permissive request wrapper so we can accept varying child elements -->
+            <xs:complexType name="AnyRequestType">
+                <xs:sequence>
+                    <xs:element name="req" minOccurs="0">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
+            </xs:complexType>
+
+            <!-- A common return wrapper: always allow statusCode/statusMessage, plus anything else -->
+            <xs:complexType name="ReturnBaseType">
+                <xs:sequence>
+                    <xs:element name="statusCode" type="xs:string" minOccurs="0"/>
+                    <xs:element name="statusMessage" type="xs:string" minOccurs="0"/>
+                    <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:complexType>
+
+            <!-- ===== entryPKK ===== -->
+            <xs:element name="entryPKK">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="req">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <!-- Accept any children so we can handle inconsistent samples -->
+                                    <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="entryPKKResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="return" type="tns:ReturnBaseType"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- ===== entryRKBM (send) ===== -->
+            <xs:complexType name="DetailRKBMType">
+                <xs:sequence>
+                    <xs:element name="namaBarang" type="xs:string"/>
+                    <xs:element name="bahaya" type="xs:string"/>
+                    <xs:element name="ganggu" type="xs:string"/>
+                    <xs:element name="kegiatan" type="xs:string"/>
+                    <xs:element name="unit" type="xs:string" minOccurs="0"/>
+                    <xs:element name="ton" type="xs:string" minOccurs="0"/>
+                    <xs:element name="m3" type="xs:string" minOccurs="0"/>
+                    <xs:element name="penyaluran" type="xs:string"/>
+                    <xs:element name="kade" type="xs:string"/>
+                    <xs:element name="pbm" type="xs:string"/>
+                    <xs:element name="npwpPbm" type="xs:string"/>
+                    <xs:element name="consignee" type="xs:string"/>
+                    <xs:element name="shipper" type="xs:string"/>
+                    <xs:element name="npwpShipper" type="xs:string"/>
+                    <xs:element name="blNo" type="xs:string"/>
+                    <xs:element name="gang" type="xs:string"/>
+                    <xs:element name="palka" type="xs:string"/>
+                    <xs:element name="noRkbmBongkar" type="xs:string"/>
+                    <xs:element name="noRkbmMuat" type="xs:string"/>
+                    <xs:element name="rencanaBongkar" type="xs:string" minOccurs="0"/>
+                    <xs:element name="rencanaMuat" type="xs:string" minOccurs="0"/>
+                    <!-- Extra fields allowed -->
+                    <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:complexType>
+
+            <xs:complexType name="RequestEntryRKBMType">
+                <xs:sequence>
+                    <xs:element name="nomorPKK" type="xs:string"/>
+                    <xs:element name="portCode" type="xs:string"/>
+                    <xs:element name="DetailRKBM" minOccurs="1" maxOccurs="unbounded">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="item" type="tns:DetailRKBMType" minOccurs="1" maxOccurs="unbounded"/>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
+            </xs:complexType>
+
+            <xs:element name="entryRKBM">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="RequestEntryRKBM" type="tns:RequestEntryRKBMType"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="entryRKBMResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="return" type="tns:ReturnBaseType"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- ===== getEntryRKBM (pull) ===== -->
+            <xs:element name="getEntryRKBM">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="user" type="xs:string" minOccurs="0"/>
+                        <xs:element name="password" type="xs:string" minOccurs="0"/>
+                        <xs:element name="nomorPKK" type="xs:string" minOccurs="0"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:complexType name="DetailRKBMItemType">
+                <xs:sequence>
+                    <xs:element name="namaBarang" type="xs:string"/>
+                    <xs:element name="bahaya" type="xs:string"/>
+                    <xs:element name="ganggu" type="xs:string"/>
+                    <xs:element name="kegiatan" type="xs:string"/>
+                    <xs:element name="unit" type="xs:string" minOccurs="0"/>
+                    <xs:element name="ton" type="xs:string" minOccurs="0"/>
+                    <xs:element name="m3" type="xs:string" minOccurs="0"/>
+                    <xs:element name="penyaluran" type="xs:string"/>
+                    <xs:element name="kade" type="xs:string"/>
+                    <xs:element name="pbm" type="xs:string"/>
+                    <xs:element name="npwpPbm" type="xs:string"/>
+                    <xs:element name="consignee" type="xs:string"/>
+                    <xs:element name="shipper" type="xs:string"/>
+                    <xs:element name="npwpShipper" type="xs:string"/>
+                    <xs:element name="blNo" type="xs:string"/>
+                    <xs:element name="gang" type="xs:string"/>
+                    <xs:element name="palka" type="xs:string"/>
+                    <xs:element name="noRkbmBongkar" type="xs:string" minOccurs="0"/>
+                    <xs:element name="noRkbmMuat" type="xs:string" minOccurs="0"/>
+                    <xs:element name="rencanaBongkar" type="xs:string" minOccurs="0"/>
+                    <xs:element name="rencanaMuat" type="xs:string" minOccurs="0"/>
+                    <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:complexType>
+
+            <xs:complexType name="EntryRKBMRecordType">
+                <xs:sequence>
+                    <xs:element name="nomorPKK" type="xs:string"/>
+                    <xs:element name="portCode" type="xs:string"/>
+                    <xs:element name="DetailRKBM">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="item" type="tns:DetailRKBMItemType" minOccurs="1" maxOccurs="unbounded"/>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
+            </xs:complexType>
+
+            <xs:element name="getEntryRKBMResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="getEntryRKBMResult">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="statusCode" type="xs:string"/>
+                                    <xs:element name="statusMessage" type="xs:string"/>
+                                    <xs:element name="entryRKBM">
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="item" type="tns:EntryRKBMRecordType" minOccurs="1" maxOccurs="unbounded"/>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- ===== entryRubahTambat ===== -->
+            <xs:element name="entryRubahTambat" type="tns:AnyRequestType"/>
+            <xs:element name="entryRubahTambatResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="return" type="tns:ReturnBaseType"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- ===== getPPKB ===== -->
+            <xs:element name="getPPKB" type="tns:AnyRequestType"/>
+            <xs:element name="getPPKBResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="return">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="ppkb" minOccurs="0" maxOccurs="unbounded">
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="nomorPKK" type="xs:string" minOccurs="0"/>
+                                                <xs:element name="portCode" type="xs:string" minOccurs="0"/>
+                                                <xs:element name="kegiatan" type="xs:string" minOccurs="0"/>
+                                                <xs:element name="statusCode" type="xs:string" minOccurs="0"/>
+                                                <xs:element name="statusMessage" type="xs:string" minOccurs="0"/>
+                                                <xs:element name="NomorPPKB" type="xs:string" minOccurs="0"/>
+                                                <xs:element name="NomorRpkRo" type="xs:string" minOccurs="0"/>
+                                                <xs:element name="PPKBKe" type="xs:string" minOccurs="0"/>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- ===== entryPerpanjanganMasaTambat ===== -->
+            <xs:element name="entryPerpanjanganMasaTambat" type="tns:AnyRequestType"/>
+            <xs:element name="entryPerpanjanganMasaTambatResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="return" type="tns:ReturnBaseType"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- ===== entryPembatalanPKK ===== -->
+            <xs:element name="entryPembatalanPKK" type="tns:AnyRequestType"/>
+            <xs:element name="entryPembatalanPKKResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="return" type="tns:ReturnBaseType"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- ===== SetSpkPandu ===== -->
+            <xs:element name="SetSpkPandu" type="tns:AnyRequestType"/>
+            <xs:element name="SetSpkPanduResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="SetSpkPanduResult">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="return">
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="statusCode" type="xs:string"/>
+                                                <xs:element name="statusMessage" type="xs:string"/>
+                                                <xs:element name="NomorSPKPandu" type="xs:string" minOccurs="0"/>
+                                                <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- ===== SendRealisasiTambat ===== -->
+            <xs:element name="SendRealisasiTambat" type="tns:AnyRequestType"/>
+            <xs:element name="SendRealisasiTambatResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="SendRealisasiTambatResult">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="return" type="tns:ReturnBaseType"/>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </wsdl:types>
+
+    <!-- ===== MESSAGES ===== -->
+    <wsdl:message name="RqEntryPKK"><wsdl:part name="parameters" element="tns:entryPKK"/></wsdl:message>
+    <wsdl:message name="RsEntryPKK"><wsdl:part name="parameters" element="tns:entryPKKResponse"/></wsdl:message>
+
+    <wsdl:message name="RqEntryRKBM"><wsdl:part name="parameters" element="tns:entryRKBM"/></wsdl:message>
+    <wsdl:message name="RsEntryRKBM"><wsdl:part name="parameters" element="tns:entryRKBMResponse"/></wsdl:message>
+
+    <wsdl:message name="RqGetEntryRKBM"><wsdl:part name="parameters" element="tns:getEntryRKBM"/></wsdl:message>
+    <wsdl:message name="RsGetEntryRKBM"><wsdl:part name="parameters" element="tns:getEntryRKBMResponse"/></wsdl:message>
+
+    <wsdl:message name="RqEntryRubahTambat"><wsdl:part name="parameters" element="tns:entryRubahTambat"/></wsdl:message>
+    <wsdl:message name="RsEntryRubahTambat"><wsdl:part name="parameters" element="tns:entryRubahTambatResponse"/></wsdl:message>
+
+    <wsdl:message name="RqGetPPKB"><wsdl:part name="parameters" element="tns:getPPKB"/></wsdl:message>
+    <wsdl:message name="RsGetPPKB"><wsdl:part name="parameters" element="tns:getPPKBResponse"/></wsdl:message>
+
+    <wsdl:message name="RqPerpanjanganTambat"><wsdl:part name="parameters" element="tns:entryPerpanjanganMasaTambat"/></wsdl:message>
+    <wsdl:message name="RsPerpanjanganTambat"><wsdl:part name="parameters" element="tns:entryPerpanjanganMasaTambatResponse"/></wsdl:message>
+
+    <wsdl:message name="RqPembatalanPKK"><wsdl:part name="parameters" element="tns:entryPembatalanPKK"/></wsdl:message>
+    <wsdl:message name="RsPembatalanPKK"><wsdl:part name="parameters" element="tns:entryPembatalanPKKResponse"/></wsdl:message>
+
+    <wsdl:message name="RqSetSpkPandu"><wsdl:part name="parameters" element="tns:SetSpkPandu"/></wsdl:message>
+    <wsdl:message name="RsSetSpkPandu"><wsdl:part name="parameters" element="tns:SetSpkPanduResponse"/></wsdl:message>
+
+    <wsdl:message name="RqSendRealisasiTambat"><wsdl:part name="parameters" element="tns:SendRealisasiTambat"/></wsdl:message>
+    <wsdl:message name="RsSendRealisasiTambat"><wsdl:part name="parameters" element="tns:SendRealisasiTambatResponse"/></wsdl:message>
+
+    <!-- ===== PORT TYPE ===== -->
+    <wsdl:portType name="InaportnetCompatPortType">
+        <wsdl:operation name="entryPKK">
+            <wsdl:input message="tns:RqEntryPKK"/>
+            <wsdl:output message="tns:RsEntryPKK"/>
+        </wsdl:operation>
+        <wsdl:operation name="entryRKBM">
+            <wsdl:input message="tns:RqEntryRKBM"/>
+            <wsdl:output message="tns:RsEntryRKBM"/>
+        </wsdl:operation>
+        <wsdl:operation name="getEntryRKBM">
+            <wsdl:input message="tns:RqGetEntryRKBM"/>
+            <wsdl:output message="tns:RsGetEntryRKBM"/>
+        </wsdl:operation>
+        <wsdl:operation name="entryRubahTambat">
+            <wsdl:input message="tns:RqEntryRubahTambat"/>
+            <wsdl:output message="tns:RsEntryRubahTambat"/>
+        </wsdl:operation>
+        <wsdl:operation name="getPPKB">
+            <wsdl:input message="tns:RqGetPPKB"/>
+            <wsdl:output message="tns:RsGetPPKB"/>
+        </wsdl:operation>
+        <wsdl:operation name="entryPerpanjanganMasaTambat">
+            <wsdl:input message="tns:RqPerpanjanganTambat"/>
+            <wsdl:output message="tns:RsPerpanjanganTambat"/>
+        </wsdl:operation>
+        <wsdl:operation name="entryPembatalanPKK">
+            <wsdl:input message="tns:RqPembatalanPKK"/>
+            <wsdl:output message="tns:RsPembatalanPKK"/>
+        </wsdl:operation>
+        <wsdl:operation name="SetSpkPandu">
+            <wsdl:input message="tns:RqSetSpkPandu"/>
+            <wsdl:output message="tns:RsSetSpkPandu"/>
+        </wsdl:operation>
+        <wsdl:operation name="SendRealisasiTambat">
+            <wsdl:input message="tns:RqSendRealisasiTambat"/>
+            <wsdl:output message="tns:RsSendRealisasiTambat"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <!-- ===== BINDING ===== -->
+    <wsdl:binding name="InaportnetCompatBinding" type="tns:InaportnetCompatPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="entryPKK">
+            <soap:operation soapAction="http://src/entryPKK" style="document"/>
+            <wsdl:input><soap:body use="literal"/></wsdl:input>
+            <wsdl:output><soap:body use="literal"/></wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="entryRKBM">
+            <soap:operation soapAction="http://src/entryRKBM" style="document"/>
+            <wsdl:input><soap:body use="literal"/></wsdl:input>
+            <wsdl:output><soap:body use="literal"/></wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getEntryRKBM">
+            <soap:operation soapAction="http://src/getEntryRKBM" style="document"/>
+            <wsdl:input><soap:body use="literal"/></wsdl:input>
+            <wsdl:output><soap:body use="literal"/></wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="entryRubahTambat">
+            <soap:operation soapAction="http://src/entryRubahTambat" style="document"/>
+            <wsdl:input><soap:body use="literal"/></wsdl:input>
+            <wsdl:output><soap:body use="literal"/></wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getPPKB">
+            <soap:operation soapAction="http://src/getPPKB" style="document"/>
+            <wsdl:input><soap:body use="literal"/></wsdl:input>
+            <wsdl:output><soap:body use="literal"/></wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="entryPerpanjanganMasaTambat">
+            <soap:operation soapAction="http://src/entryPerpanjanganMasaTambat" style="document"/>
+            <wsdl:input><soap:body use="literal"/></wsdl:input>
+            <wsdl:output><soap:body use="literal"/></wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="entryPembatalanPKK">
+            <soap:operation soapAction="http://src/entryPembatalanPKK" style="document"/>
+            <wsdl:input><soap:body use="literal"/></wsdl:input>
+            <wsdl:output><soap:body use="literal"/></wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SetSpkPandu">
+            <soap:operation soapAction="http://src/SetSpkPandu" style="document"/>
+            <wsdl:input><soap:body use="literal"/></wsdl:input>
+            <wsdl:output><soap:body use="literal"/></wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="SendRealisasiTambat">
+            <soap:operation soapAction="http://src/SendRealisasiTambat" style="document"/>
+            <wsdl:input><soap:body use="literal"/></wsdl:input>
+            <wsdl:output><soap:body use="literal"/></wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <!-- ===== SERVICE ===== -->
+    <wsdl:service name="InaportnetCompatService">
+        <wsdl:port name="InaportnetCompatPort" binding="tns:InaportnetCompatBinding">
+            <!-- Your controller can rewrite this at runtime -->
+            <soap:address location="https://YOUR-DOMAIN/inaportnet/soap"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
